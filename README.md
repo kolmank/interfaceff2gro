@@ -12,7 +12,8 @@ Create Python 2.7 environment and install MDAnalysis. The easiest way is to use 
 
 ```
 conda config --add channels conda-forge
-conda install mdanalysis
+conda create -n envname python=2.7 mdanalysis
+source activate envname
 ```
 
 ### Installing
@@ -26,13 +27,15 @@ git clone https://github.com/kolmank/interfaceff2gro.git
 Enter msi2lmp directory and compile it. According to the authors of the code, the files have been prepared to be compiled using gcc so check if gcc is your default compiler. If you plan to use different compiler, you have to modify the files to make it work. Frc file having atomtypes, bondtypes and angletypes of Interface forcfield has been added to frc_files directory. To compile please use the commands below:
 
 ```
-cd msi2lmp/src/
+cd interfaceff2gro/msi2lmp/src/
 make
 ```
 
 Enter the main directory (/interfaceff2gro) and make interfaceff2gro.py executable:
 
 ```
+cd ..
+cd ..
 chmod +x interfaceff2gro.py
 ```
 
