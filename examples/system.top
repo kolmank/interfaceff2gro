@@ -1,0 +1,11 @@
+#include "charmm27.ff/forcefield.itp"
+#include "silica_Q3_amorph_4_7OH_18pct_ion.itp"
+#include "charmm27.ff/ions.itp"
+#include "charmm27.ff/tip4p.itp"
+
+[ system ]
+Surface
+
+[ molecules ]
+SURF 1 ;1 periodic slab
+
