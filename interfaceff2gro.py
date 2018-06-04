@@ -127,7 +127,7 @@ try:
     create_lammps_data_file();
 except:
     print('First command-line argument is not a proper .car file, or .mdf file is missing/having different name than the .car file, or msi2lmp.exe is not located in ' + os.path.dirname(sys.argv[0]) + '/msi2lmp/src.')
-    print('Usage: ./car2top.py *.car.')
+    print('Usage: ./interfaceff2gro.py nameoffile.car.')
     sys.exit()
 
 # Open the created data file and create an universe.
