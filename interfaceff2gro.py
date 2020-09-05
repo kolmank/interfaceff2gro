@@ -299,9 +299,9 @@ itp_file.write('[ atomtypes ]\n')
 itp_file.write(';name	at.num	mass	charge	ptype	sigma	epsilon\n')
 for m in atomtypes_universe:
     if m[1] > 10:
-        itp_file.write(cformat_atomtypes%(atom_lammps_dict[int(m[0])],element2atomNumber[mass2element[m[1]]],m[1],0,'A',0.2*atom_ff_sigma[atom_lammps_dict[int(m[0])]],-kcal2kJ*atom_ff_epsilion[atom_lammps_dict[int(m[0])]]))
+        itp_file.write(cformat_atomtypes%(atom_lammps_dict[int(m[0])],element2atomNumber[mass2element[m[1]]],m[1],0,'A',2.0**(-1.0/6.0)*0.2*atom_ff_sigma[atom_lammps_dict[int(m[0])]],-kcal2kJ*atom_ff_epsilion[atom_lammps_dict[int(m[0])]]))
     else:
-        itp_file.write(cformat_atomtypes_2%(atom_lammps_dict[int(m[0])],element2atomNumber[mass2element[m[1]]],m[1],0,'A',0.2*atom_ff_sigma[atom_lammps_dict[int(m[0])]],-kcal2kJ*atom_ff_epsilion[atom_lammps_dict[int(m[0])]]))
+        itp_file.write(cformat_atomtypes_2%(atom_lammps_dict[int(m[0])],element2atomNumber[mass2element[m[1]]],m[1],0,'A',2.0**(-1.0/6.0)*0.2*atom_ff_sigma[atom_lammps_dict[int(m[0])]],-kcal2kJ*atom_ff_epsilion[atom_lammps_dict[int(m[0])]]))
 
 # writing bondtype section
 if len(bondtypes_universe) > 0:
