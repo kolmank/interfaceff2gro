@@ -446,7 +446,7 @@ top_file.write('\n')
 top_file.close()
 
 # Removing the created data file
-#clean_lammps_data_file()
+clean_lammps_data_file()
 
 # Printing output to terminal
 print('Three files have been created: %s.itp, %s.gro and system.top.'%(sys.argv[1][:-4],sys.argv[1][:-4]))
