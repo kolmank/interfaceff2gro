@@ -107,11 +107,30 @@ def angletypes_from_lammps(l):
                  n +=1
     return g
 
+
+def dihedraltypes_from_lammps(l):
+    '''Extracts angletypes from .data lammps file. l is argument being a list containing the lines of .data file.'''
+    i,s = int,str
+    g = []
+    for m in range(len(l)):
+        if len(l[m])>0 and l[m][:15] == 'Dihedral Coeffs':
+            n = i(m)
+            n += 2
+            while len(l[n])>1:
+                 h = s(l[n][71:])
+                 h = h.strip()
+                 h = h.upper()
+                 h = h.split('-')
+                 g.append(h)
+                 n +=1
+    return g
+
+
 def create_lammps_data_file():
     '''Creates lampps *.data file from Materials studio .car .mdf and .frc file. To do this a utlity from Lammps package is used. J is the name of *.car file (e.g., something.car). The car and mdf file needs to have the same name. The frc file need to be located in ./msi2lmp/frc_files. '''
     bash_command = os.path.dirname(sys.argv[0]) + '/msi2lmp/src/msi2lmp.exe ' + sys.argv[1][:-4] + ' -class 2 -frc ' + os.path.dirname(sys.argv[0]) + '/msi2lmp/frc_files/pcff_interface.frc -ignore'
 #    g = subprocess.Popen(bash_command, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True)
-    g = subprocess.Popen(bash_command, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    g = subprocess.Popen(bash_command, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,encoding='utf-8')
     print(g.stdout.read())
 
     
@@ -175,6 +194,7 @@ bond_lammps = bondtypes_from_lammps(lammps);
 
 angle_lammps = angletypes_from_lammps(lammps);
 
+dihedral_lammps = dihedraltypes_from_lammps(lammps);
 
 # Dictionary for atom numbers
 element2atomNumber= {}
@@ -234,11 +254,14 @@ kcal2kJ = 4.184
 cformat_atomtypes = '%-s\t%-s\t%8.5f\t%-.6f\t%s\t%.12f\t%.6f \n'
 cformat_atomtypes_2 = '%-s\t%-s\t%8.6f\t%-.6f\t%s\t%.12f\t%.6f \n'
 cformat_bondtypes = '%-s\t%-s\t%d\t%-.4f\t%-.2f\n'
+cformat_pairtypes = '%-s\t%-s\t%d\t%.12f\t%.6f \n'
 cformat_angletypes = '%-s\t%-s\t%-s\t%d\t%-.2f\t%-.4f\t%.1f\t%.1f\n'
+cformat_dihedraltypes = '%-s\t%-s\t%-s\t%-s\t%d\t%-.2f\t%-.4f\t%6d\n'
 cformat_molecule = '%-5s%4d\n'
 cformat_atoms = '%6d%11s%7d%7s%7s%7d%11.3f%11.3f   ;\n'
 cformat_bonds = '%5d%6d%6d \n'
 cformat_angles = '%5d%6d%6d%6d \n'
+cformat_dihedrals = '%5d%6d%6d%6d%6d \n'
 gro_format = '%5d%5s%5s%5d%8.3f%8.3f%8.3f\n'
 
 # Check which atomtypes are present in universe
@@ -251,6 +274,9 @@ bondtypes_universe = bond_lammps
 
 # Check which angletypes are present in universe
 angletypes_universe = angle_lammps
+
+# Check which dihedraltypes are present in universe
+dihedraltypes_universe = dihedral_lammps
 
 # Check atoms in universe
 atoms_universe = []
@@ -272,6 +298,14 @@ try:
         angles_universe.append(m)
 except:
     print('Angles between atoms have not been found.')
+
+# Check dihedrals in universe
+dihedrals_universe = []
+try:
+    for m in u.dihedrals.indices:
+        dihedrals_universe.append(m)
+except:
+    print('Dihedrals between atoms have not been found.')
 
 # Atom properties for gro file
 atoms_universe_gro = []
@@ -313,6 +347,15 @@ if len(bondtypes_universe) > 0:
             if (m[0] == n[0] and m[1] == n[1]) or (m[1] == n[0] and m[0] == n[1]):
                 itp_file.write(cformat_bondtypes%(n[0],n[1],1,n[3]/10,n[2]*200*kcal2kJ))
 
+# writing pairtype section
+itp_file.write('\n')
+itp_file.write('[ pairtypes ]\n')
+itp_file.write('; i	j	func	sigma1-4	epsilon1-4\n')
+for m in range(len(atomtypes_universe)):  
+    for n in range(len(atomtypes_universe)):
+        if n >= m:
+            itp_file.write(cformat_pairtypes%(atom_lammps_dict[int(atomtypes_universe[m][0])],atom_lammps_dict[int(atomtypes_universe[n][0])],1,(2.0**(-1.0/6.0)*0.2*atom_ff_sigma[atom_lammps_dict[int(atomtypes_universe[m][0])]]+2.0**(-1.0/6.0)*0.2*atom_ff_sigma[atom_lammps_dict[int(atomtypes_universe[n][0])]])/2.0,((-kcal2kJ*atom_ff_epsilion[atom_lammps_dict[int(atomtypes_universe[m][0])]])*(-kcal2kJ*atom_ff_epsilion[atom_lammps_dict[int(atomtypes_universe[n][0])]]))**0.5))
+
 # writing angletype section
 if len(angletypes_universe) > 0:
     itp_file.write('\n')
@@ -322,6 +365,14 @@ if len(angletypes_universe) > 0:
         for n in angle_ff:
             if (m[0] == n[0] and m[1] == n[1]and m[2] == n[2]) or (m[2] == n[0] and m[0] == n[2] and m[1] == n[1]):
                 itp_file.write(cformat_angletypes%(n[0],n[1],n[2],5,n[4],n[3]*2*kcal2kJ,0,0))
+
+# writing dihedraltype section
+if len(dihedraltypes_universe) > 0:
+    itp_file.write('\n')
+    itp_file.write('[ dihedraltypes ]\n')
+    itp_file.write('; i	j	k	l	func	phi0	Kphi	mult\n')
+    for n in dihedraltypes_universe:
+        itp_file.write(cformat_dihedraltypes%(n[0],n[1],n[2],n[3],9,0,0,3))
 
 # writing molecule section
 itp_file.write('\n')
@@ -343,6 +394,14 @@ if len(bonds_universe) > 0:
     itp_file.write(';  ai    aj funct            c0            c1            c2            c3\n')
     for m in bonds_universe:
         itp_file.write(cformat_bonds%(m[0]+1,m[1]+1,1))
+
+# writing pairs section
+if len(dihedrals_universe) > 0:
+    itp_file.write('\n')
+    itp_file.write('[ pairs ]\n')
+    itp_file.write('; ai	aj	funct            c6            c12\n')
+    for m in dihedrals_universe:
+        itp_file.write(cformat_bonds%(m[0]+1,m[3]+1,1))
   
 # writing angle section
 if len(angles_universe) > 0:
@@ -352,6 +411,14 @@ if len(angles_universe) > 0:
     for m in angles_universe:
         itp_file.write(cformat_angles%(m[0]+1,m[1]+1,m[2]+1,5))
 
+# writing dihedral section
+if len(dihedrals_universe) > 0:
+    itp_file.write('\n')
+    itp_file.write('[ dihedrals ]\n')
+    itp_file.write('; ai	aj	ak	al	funct	phi0	cp	mult\n')
+    for m in dihedrals_universe:
+        itp_file.write(cformat_dihedrals%(m[0]+1,m[1]+1,m[2]+1,m[3]+1,9))
+        
 # Wriritng position restraints
 itp_file.write('\n')
 itp_file.write('; Include Position restraint file\n')
@@ -379,7 +446,7 @@ top_file.write('\n')
 top_file.close()
 
 # Removing the created data file
-clean_lammps_data_file()
+#clean_lammps_data_file()
 
 # Printing output to terminal
 print('Three files have been created: %s.itp, %s.gro and system.top.'%(sys.argv[1][:-4],sys.argv[1][:-4]))
