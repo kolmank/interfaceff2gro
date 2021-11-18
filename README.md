@@ -4,15 +4,15 @@ interfaceff2gro is a Python script that creates input files for GROMACS using He
 
 ## Getting Started
 
-The script was written in Python 2.7 but it should also work with Python 3.6 (I have only tested it on Linux). The easiest way to build Python environment is by using [Conda](https://conda.io/docs/). The source file of msi2lmp are included in [msi2lmp folder](https://github.com/kolmank/interfaceff2gro/tree/master/msi2lmp) so you do not need to download them.
+The script was written in Python 3.6 (I have only tested it on Linux). The easiest way to build Python environment is by using [Conda](https://conda.io/docs/). The source file of msi2lmp are included in [msi2lmp folder](https://github.com/kolmank/interfaceff2gro/tree/master/msi2lmp) so you do not need to download them.
 
 ### Prerequisites
 
-Create Python 2.7 environment and install MDAnalysis. The easiest way is to use Conda.
+Create Python 3.6 environment and install MDAnalysis. The easiest way is to use Conda.
 
 ```
 conda config --add channels conda-forge
-conda create -n envname python=2.7 mdanalysis
+conda create -n envname python=3.6 mdanalysis
 source activate envname
 ```
 
