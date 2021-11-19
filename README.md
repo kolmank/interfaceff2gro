@@ -18,7 +18,7 @@ source activate envname
 
 ### Installing
 
-Download the files to you computer:
+Download the files to you computer (if you want to use the files from this branch it is easier to download it manual through web browser):
 
 ```
 git clone https://github.com/kolmank/interfaceff2gro.git
