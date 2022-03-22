@@ -137,7 +137,7 @@ def create_lammps_data_file():
 def clean_lammps_data_file():
     '''Removes .data file created by the lammps utility software '''
     bash_command = 'rm ' + os.getcwd() + '/' + sys.argv[1][:-4] + '.data'
-    g = subprocess.Popen(bash_command, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True)
+    g = subprocess.Popen(bash_command, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True,encoding='utf-8')
     print('Cleaning temporary files.')
     print(g.stdout.read())
 
