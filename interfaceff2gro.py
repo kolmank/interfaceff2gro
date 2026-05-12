@@ -400,8 +400,12 @@ if len(dihedrals_universe) > 0:
     itp_file.write('\n')
     itp_file.write('[ pairs ]\n')
     itp_file.write('; ai	aj	funct            c6            c12\n')
+    written_pairs = set()
     for m in dihedrals_universe:
-        itp_file.write(cformat_bonds%(m[0]+1,m[3]+1,1))
+        pair = tuple(sorted((m[0]+1,m[3]+1)))
+        if pair not in written_pairs:
+            itp_file.write(cformat_bonds%(pair[0],pair[1],1))
+            written_pairs.add(pair)
   
 # writing angle section
 if len(angles_universe) > 0:
