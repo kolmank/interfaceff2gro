@@ -4,6 +4,7 @@ import MDAnalysis
 import sys
 import subprocess
 import os
+import numpy
 
 def atomtypes_from_ff(l):
     '''Extracts atomtypes from .prm charmm forcefield file. l is argument being a list containing the lines of forcefield file.'''
@@ -321,12 +322,25 @@ gro_file.write('%6d\n'%(atoms_universe_gro[-1][0]+1))
 for m in atoms_universe_gro:
     gro_file.write(gro_format%(1,'SURF',mass2element[m[1]],m[0]+1,m[2][0]/10,m[2][1]/10,m[2][2]/10))
 
-gro_file.write('%10.5f%10.5f%10.5f\n'%(u.dimensions[0]/10,u.dimensions[1]/10,u.dimensions[2]/10))
+# GROMACS requires 9 numbers for non-orthorhombic boxes in the last line of gro file. Format: v1x v2y v3z v1y v1z v2x v2z v3x v3y
+a, b, c = u.dimensions[:3] / 10
+alpha, beta, gamma = numpy.radians(u.dimensions[3:])
+
+v1x = a
+v2y = b * numpy.sin(gamma)
+v3z = c * (numpy.sqrt(1 - numpy.cos(alpha)**2 - numpy.cos(beta)**2 - numpy.cos(gamma)**2 + 2*numpy.cos(alpha)*numpy.cos(beta)*numpy.cos(gamma)) / numpy.sin(gamma))
+v1y = 0.0
+v1z = 0.0
+v2x = b * numpy.cos(gamma)
+v2z = 0.0
+v3x = c * numpy.cos(beta)
+v3y = c * (numpy.cos(alpha) - numpy.cos(beta) * numpy.cos(gamma)) / numpy.sin(gamma)
+
+gro_file.write('%10.5f%10.5f%10.5f%10.5f%10.5f%10.5f%10.5f%10.5f%10.5f\n' % (v1x, v2y, v3z, v1y, v1z, v2x, v2z, v3x, v3y))
 gro_file.close()
 
 # Writing itp file
 itp_file = open(sys.argv[1][:-4]+'.itp','w')
-#itp_file = open('test.itp','w')
 
 # writing atomtype section
 itp_file.write('[ atomtypes ]\n')
