@@ -53,7 +53,6 @@ As a result, you should get three files: nameofyourcarfile.gro, nameofyourcarfil
 
 ## Known limitations
 
-* It only works with rectangular simulation boxes.
 * Supports only atoms included in prm file, which is [here](https://github.com/kolmank/interfaceff2gro/tree/master/forcefield). According to my knowledge, it should work with silica, metal, cement (only c3a and c3s), clay and hydroxyapatite models that can be found in the database of Interface forcefield.
 
 ## Acknowledgments
